@@ -12,4 +12,5 @@
 *.out
 
 # Output of the compiler
-**/.wat
+**/*.wat
+**/*.wasm
