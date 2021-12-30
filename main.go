@@ -91,7 +91,6 @@ func generateInstructions(code string) (out string) {
 			loopIndentS := indent(2 + indentLevel)      // Parent block indent plus the loop's indent
 			blockIndentS := indent(2 + indentLevel - 1) // Just parent block indent
 			out += fmt.Sprintf("%s(br_if $label$%[4]d (i32.ne (i32.load8_u (global.get $cellptr)) (i32.const 0)))\n%[2]s)\n%[3]s)\n", loopIndentS, blockIndentS, indent(indentLevel), loopDepthLabelIdxs[loopDepth])
-			delete(loopDepthLabelIdxs, loopDepth)
 			indentLevel -= 2 // We exited the Loop and Block sections
 		}
 	}
