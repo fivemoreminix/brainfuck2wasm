@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-var watOutputFormat = `(module
+const watOutputFormat = `(module
  (import "js" "mem" (memory 1))
  (import "console" "putChar" (func $putChar (param i32)))
  (import "console" "getChar" (func $getChar (result i32)))
