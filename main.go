@@ -56,8 +56,8 @@ func main() {
 
 func generateInstructions(code string) (out string) {
 	labelIdx := 0
-	loopDepthLabelIdxs := make(map[int]int)
 	loopDepth := 0
+	loopDepthLabelIdxs := make(map[int]int)
 	indentLevel := 0
 	for _, r := range code {
 		indentS := indent(2 + indentLevel)
