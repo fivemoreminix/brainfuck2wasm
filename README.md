@@ -11,13 +11,13 @@ Clone this repo, open a terminal, and then `cd` to the repo directory.
 
 To compile a sample:
 ```
-go run . -out hello-world.wat ./samples/hello-world.b
+go run . -o hello-world.wat ./samples/hello-world.b
 ```
 
 You can also build the compiler to a native executable:
 ```
 go build .
-brainfuck2wasm -out mandelbrot.wat ./samples/mandelbrot.b
+brainfuck2wasm -o mandelbrot.wat ./samples/mandelbrot.b
 ```
 
 After compiling a Brainfuck sample to .wat, you're going to need to compile the .wat (WebAssembly text) to a .wasm (WebAssembly) which is actually interpreted in web browsers.

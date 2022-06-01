@@ -21,7 +21,7 @@ const watOutputFormat = `(module
 )
 `
 
-var outFile = flag.String("out", "", "output file")
+var outFile = flag.String("o", "", "output file")
 
 func main() {
 	flag.Parse()
