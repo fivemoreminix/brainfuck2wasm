@@ -21,7 +21,12 @@ function keyPress(event) {
 var importObject = {
     console: {
         putChar: function(ch) {
-            container.innerHTML += "&#" + ch + ";";
+            switch (ch) {
+                case 10: ch = "<br>"; break;
+                case 32: ch = "&nbsp;"; break;
+                default: ch = String.fromCharCode(ch);
+            }
+            container.innerHTML += ch;
         },
         getChar: function() {
             const result = submittedInput.charCodeAt(inputCharIdx);
