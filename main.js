@@ -7,13 +7,17 @@ var inputCharIdx = 0;
 
 function keyPress(event) {
     if (event.keyCode === 13) {
-        alert("Started running");
         submittedInput = input.value + '\0';
         input.disabled = true;
+
+        const runningText = document.getElementById("running-text");
+        runningText.innerHTML = "running...";
+
         WebAssembly.instantiateStreaming(fetch('brainfuck.wasm'), importObject)
             .then(({instance}) => {
                 instance.exports.runBrainfuck();
                 // console.log(new Uint8Array(memory.buffer, 0, 8)); // Print first 8 cells of memory
+                runningText.innerHTML = "";
             });
     }
 }
