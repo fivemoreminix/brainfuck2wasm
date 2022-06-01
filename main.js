@@ -1,5 +1,4 @@
 var memory = new WebAssembly.Memory({initial: 1}); // Allocate 1 64KB page of memory
-const cellptr = new WebAssembly.Global({value: 'i32', mutable: true})
 
 const container = document.getElementById('container');
 const input = document.getElementById('input');
@@ -34,6 +33,5 @@ var importObject = {
     },
     js: {
         mem: memory,
-        cellptr,
     }
 };

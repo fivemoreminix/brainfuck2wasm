@@ -13,10 +13,9 @@ const watOutputFormat = `(module
  (import "js" "mem" (memory 1))
  (import "console" "putChar" (func $putChar (param i32)))
  (import "console" "getChar" (func $getChar (result i32)))
- (global $cellptr (import "js" "cellptr") (mut i32))
 
  (export "runBrainfuck" (func $runBrainfuck))
- (func $runBrainfuck
+ (func $runBrainfuck (local $ptr i32)
 %s )
 )
 `
@@ -63,21 +62,21 @@ func generateInstructions(code string) (out string) {
 		indentS := indent(2 + indentLevel)
 		switch r {
 		case '>':
-			out += fmt.Sprintf("%s(i32.add (global.get $cellptr) (i32.const 1))\n%[1]s(global.set $cellptr)\n", indentS)
+			out += fmt.Sprintf("%s(i32.add (local.get $ptr) (i32.const 1))\n%[1]s(local.set $ptr)\n", indentS)
 		case '<':
-			out += fmt.Sprintf("%s(i32.sub (global.get $cellptr) (i32.const 1))\n%[1]s(global.set $cellptr)\n", indentS)
+			out += fmt.Sprintf("%s(i32.sub (local.get $ptr) (i32.const 1))\n%[1]s(local.set $ptr)\n", indentS)
 		case '+':
-			out += fmt.Sprintf("%s(global.get $cellptr)\n%[1]s(i32.store8 (i32.add (i32.load8_u (global.get $cellptr)) (i32.const 1)))\n", indentS)
+			out += fmt.Sprintf("%s(local.get $ptr)\n%[1]s(i32.store8 (i32.add (i32.load8_u (local.get $ptr)) (i32.const 1)))\n", indentS)
 		case '-':
-			out += fmt.Sprintf("%s(global.get $cellptr)\n%[1]s(i32.store8 (i32.sub (i32.load8_u (global.get $cellptr)) (i32.const 1)))\n", indentS)
+			out += fmt.Sprintf("%s(local.get $ptr)\n%[1]s(i32.store8 (i32.sub (i32.load8_u (local.get $ptr)) (i32.const 1)))\n", indentS)
 		case '.':
-			out += fmt.Sprintf("%s(i32.load8_u (global.get $cellptr))\n%[1]s(call $putChar)\n", indentS)
+			out += fmt.Sprintf("%s(i32.load8_u (local.get $ptr))\n%[1]s(call $putChar)\n", indentS)
 		case ',':
-			out += fmt.Sprintf("%s(i32.store8 (global.get $cellptr) (call $getChar))\n", indentS)
+			out += fmt.Sprintf("%s(i32.store8 (local.get $ptr) (call $getChar))\n", indentS)
 		case '[':
 			out += fmt.Sprintf("%s(block $label$%[2]d\n", indentS, labelIdx)
 			blockIndentS := indent(3 + indentLevel)
-			out += fmt.Sprintf("%s(br_if $label$%[2]d (i32.eq (i32.load8_u (global.get $cellptr)) (i32.const 0)))\n", blockIndentS, labelIdx)
+			out += fmt.Sprintf("%s(br_if $label$%[2]d (i32.eq (i32.load8_u (local.get $ptr)) (i32.const 0)))\n", blockIndentS, labelIdx)
 
 			labelIdx++ // Block and Loop sections use different labels
 			out += fmt.Sprintf("%s(loop $label$%d\n", blockIndentS, labelIdx)
@@ -90,7 +89,7 @@ func generateInstructions(code string) (out string) {
 			loopDepth--
 			loopIndentS := indent(2 + indentLevel)      // Parent block indent plus the loop's indent
 			blockIndentS := indent(2 + indentLevel - 1) // Just parent block indent
-			out += fmt.Sprintf("%s(br_if $label$%[4]d (i32.ne (i32.load8_u (global.get $cellptr)) (i32.const 0)))\n%[2]s)\n%[3]s)\n", loopIndentS, blockIndentS, indent(indentLevel), loopDepthLabelIdxs[loopDepth])
+			out += fmt.Sprintf("%s(br_if $label$%[4]d (i32.ne (i32.load8_u (local.get $ptr)) (i32.const 0)))\n%[2]s)\n%[3]s)\n", loopIndentS, blockIndentS, indent(indentLevel), loopDepthLabelIdxs[loopDepth])
 			indentLevel -= 2 // We exited the Loop and Block sections
 		}
 	}
