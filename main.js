@@ -8,20 +8,21 @@ var inputCharIdx = 0;
 
 function keyPress(event) {
     if (event.keyCode === 13) {
+        alert("Started running");
         submittedInput = input.value + '\0';
         input.disabled = true;
+        WebAssembly.instantiateStreaming(fetch('brainfuck.wasm'), importObject)
+            .then(({instance}) => {
+                instance.exports.runBrainfuck();
+                // console.log(new Uint8Array(memory.buffer, 0, 8)); // Print first 8 cells of memory
+            });
     }
 }
 
 var importObject = {
     console: {
         putChar: function(ch) {
-            switch (ch) {
-                case 10: ch = "<br>"; break;
-                case 32: ch = "&nbsp;"; break;
-                default: ch = String.fromCharCode(ch);
-            }
-            container.innerHTML += ch;
+            container.innerHTML += "&#" + ch + ";";
         },
         getChar: function() {
             const result = submittedInput.charCodeAt(inputCharIdx);
@@ -36,9 +37,3 @@ var importObject = {
         cellptr,
     }
 };
-
-WebAssembly.instantiateStreaming(fetch('brainfuck.wasm'), importObject)
-    .then(({instance}) => {
-        instance.exports.runBrainfuck();
-        console.log(new Uint8Array(memory.buffer, 0, 8)); // Print first 8 cells of memory
-    });
