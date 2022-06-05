@@ -1,7 +1,7 @@
 # brainfuck2wasm
 A Brainfuck to WebAssembly compiler written in Go.
 
-## Usage
+## Requirements
 In order to start developing for the web with Brainfuck, you will need:
  * The `wat2wasm` tool from the [WebAssembly Binary Toolkit](https://github.com/WebAssembly/wabt) which on Windows is just extracting a release to C:\Program Files\wabt\ and adding the bin directory to your PATH.
  * A Go compiler
@@ -9,15 +9,34 @@ In order to start developing for the web with Brainfuck, you will need:
 
 Clone this repo, open a terminal, and then `cd` to the repo directory.
 
-To compile a sample:
+## Usage
+To compile a sample to a WebAssembly module named "brainfuck.wasm":
 ```
-go run . -o hello-world.wat ./samples/hello-world.b
+go run . -o brainfuck ./samples/hello-world.b
 ```
 
-You can also build the compiler to a native executable:
+Then you can host the website in this directory using Python:
 ```
-go build .
+python3 -m http.server
+```
+
+(Note: if `python3` isn't a valid program, try `python` instead)
+
+Now go to `localhost:8000` in your web browser and wait for the program to run! Mandelbrot takes a while because it is
+a very large program.
+
+You can also install brainfuck2wasm on your computer and run anywhere:
+```
+go install
 brainfuck2wasm -o mandelbrot.wat ./samples/mandelbrot.b
+```
+
+It is installed to go/bin in your user home directory.
+
+## More in-depth usage examples
+To compile a sample to WebAssembly Text format (.wat):
+```
+go run . -c -o hello-world.wat ./samples/hello-world.b
 ```
 
 After compiling a Brainfuck sample to .wat, you're going to need to compile the .wat (WebAssembly text) to a .wasm (WebAssembly) which is actually interpreted in web browsers.
@@ -38,8 +57,9 @@ Now open your browser and enter the address `localhost:8000` which will get you 
 
 Immediately, the brainfuck program will be running in the background. Mandelbrot takes a while because a) it is not a simple brainfuck program, and b) I didn't say this was an *optimizing* compiler.
 
-Takes about 5 seconds for me. Then it will just print almost instantaneously.
+Takes about 5 seconds for me. Then it will print the results.
 
 Anyone is free to fork this project and make it optimized! There's a lot of opportunity for usability improvements and decreasing the number of generated instructions.
 
-This project was for a pay-wall Medium story that I am still writing.
+This project was for a pay-wall Medium story which you may find here:
+https://medium.com/gitconnected/compiling-brainf-to-webassembly-with-go-8838519e3c8b
