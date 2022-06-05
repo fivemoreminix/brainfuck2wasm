@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path"
 	"strings"
 )
@@ -21,6 +22,7 @@ const watOutputFormat = `(module
 `
 
 var outFile = flag.String("o", "", "output file")
+var watOnly = flag.Bool("c", false, "don't generate a WebAssembly module using wat2wasm")
 
 func main() {
 	flag.Parse()
@@ -38,19 +40,51 @@ func main() {
 	if *outFile == "" {
 		// The outFile is the input file with a .wat extension instead
 		*outFile = flag.Arg(0)
-		ext := path.Ext(*outFile)
-		*outFile = strings.Replace(*outFile, ext, ".wat", 1)
 	}
+	ext := path.Ext(*outFile)
+	*outFile = (*outFile)[:len(*outFile)-len(ext)]
 
-	f, err := os.Create(*outFile)
+	watPath := *outFile + ".wat"
+	watFile, err := os.Create(watPath)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "error: unable to open outfile")
+		fmt.Fprintf(os.Stderr, "error: unable to open %s", watPath)
 		os.Exit(1)
 	}
-	defer f.Close()
 
 	var g = NewGenerator()
-	fmt.Fprintf(f, watOutputFormat, g.genInstrs(string(bytes)))
+	fmt.Fprintf(watFile, watOutputFormat, g.genInstrs(string(bytes)))
+	watFile.Close()
+
+	if !*watOnly {
+		wasmPath := *outFile + ".wasm"
+		cmd := exec.Command("wat2wasm", watPath, "-o", wasmPath)
+		cmd.Stderr = os.Stderr
+		cmd.Stdout = os.Stdout
+		err = cmd.Run()
+		if err != nil {
+			switch typ := err.(type) {
+			case *exec.ExitError:
+				if !typ.Success() {
+					fmt.Fprintln(os.Stderr, "warning: wat2wasm failed to compile the .wat file. Please file an issue."+
+						"at https://github.com/fivemoreminix/brainfuck2wasm/issues")
+					fmt.Fprintln(os.Stderr, "wat2wasm exit code: %v", typ.ExitCode())
+					return
+				} else {
+					fmt.Println("Compiled module using wat2wasm")
+				}
+			default:
+				fmt.Fprintf(os.Stderr, "warning: unable to run command 'wat2wasm %s'.\n"+
+					"Are you sure wat2wasm is available in your PATH?\n\n", watPath)
+				fmt.Fprintln(os.Stderr, "If you didn't intend to use wat2wasm, pass the -c flag. See help for more info.")
+			}
+			return
+		}
+		err = os.Remove(watPath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "warning: error deleting temporary .wat: %v", err)
+			return
+		}
+	}
 }
 
 type Generator struct {
